@@ -1,0 +1,17 @@
+# Repostory files
+Dockerfile
+.git
+.github
+.gitignore
+README.md
+LICENSE.md
+.pre-commit-config.yaml
+
+# Built executable
+chatty
+
+# Test Files
+*_test.go
+
+# Assets
+assets/
