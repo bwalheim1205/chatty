@@ -2,7 +2,7 @@
 # --------------------------
 # BUILD STAGE
 # --------------------------
-FROM golang:1.24-alpine AS builder
+FROM golang:1.25-alpine AS builder
 
 # Set working directory
 WORKDIR /app
@@ -17,7 +17,7 @@ RUN go mod download
 # Build source
 COPY cmd/ cmd/
 COPY internal/ internal/
-RUN go build -o aws-mcp-gateway ./cmd/mcp-server
+RUN go build -o chatty ./cmd/cli
 
 # --------------------------
 # RUNTIME STAGE
@@ -29,7 +29,7 @@ RUN apk add --no-cache ca-certificates
 
 # Copy binary from builder
 WORKDIR /app
-COPY --from=builder /app/aws-mcp-gateway .
+COPY --from=builder /app/chatty .
 
 
-ENTRYPOINT [ "./aws-mcp-gateway" ]
+ENTRYPOINT [ "./chatty" ]

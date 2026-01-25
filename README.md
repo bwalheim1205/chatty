@@ -60,4 +60,4 @@ docker run -v chatty
 If there's something you'd like to see implemented we'd love to her from you just open an issue. Here are some of the functionality next on the horizon:
 
 - **Chat History**: To give a full featured chat interface we want to track previous chat histories allowing it to remember your previous conversations and resume them.
-- **MCP Connections**: Tools! Tools! Tools! Similar to must GUI chat interfaces we want the ability to teach 
+- **MCP Connections**: Tools! Tools! Tools! Similar to must GUI chat interfaces we want the ability to leverage tools to improve responses

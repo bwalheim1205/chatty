@@ -7,7 +7,7 @@ import (
 func (m *Model) updateViewportContent() {
 	var b strings.Builder
 
-	if len(m.Messages) == 0 {
+	if len(m.State.Messages) == 0 {
 		// Fill with empty lines to occupy viewport
 		for i := 0; i < m.Viewport.Height; i++ {
 			b.WriteString("\n")
@@ -15,11 +15,11 @@ func (m *Model) updateViewportContent() {
 	} else {
 		start := m.Viewport.YOffset
 		end := start + m.Viewport.Height
-		if end > len(m.Messages) {
-			end = len(m.Messages)
+		if end > len(m.State.Messages) {
+			end = len(m.State.Messages)
 		}
 		for i := start; i < end; i++ {
-			line := m.Messages[i].Role + ": " + m.Messages[i].Content
+			line := m.State.Messages[i].Role + ": " + m.State.Messages[i].Content
 			b.WriteString(line + "\n")
 		}
 	}
