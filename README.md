@@ -4,6 +4,8 @@
 
 ```chatty``` is an open-source, Go-based TUI for working with LLMs from your terminal. Built with developer workflows in mind and inspired by Neovim, chatty aims to make AI a natural part of your command-line environment through a fast, customizable, and keyboard-first interface.
 
+**Warning**: This is still in early stage development so expect frequent (and breaking) changes
+
 # Features
 - **Chat TUI**: A TUI interface for interacting with different LLM models
 - **Multiple Model Support**: Supports ability to connect to verity of model providers. (Ollama, ChatGPT, etc.)
