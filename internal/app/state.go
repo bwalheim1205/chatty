@@ -1,6 +1,8 @@
 package app
 
 import (
+	"context"
+
 	"github.com/bwalheim1205/chatty/internal/llm"
 	"github.com/bwalheim1205/chatty/internal/llm/ollama"
 )
@@ -20,6 +22,8 @@ type State struct {
 	CommandType string
 	Model       string
 	LLM         llm.Client
+	cancel      context.CancelFunc
+	Stream      <-chan llm.StreamChunk
 }
 
 func NewState() *State {

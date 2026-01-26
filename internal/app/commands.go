@@ -1,6 +1,7 @@
 package app
 
 import (
+	"context"
 	"strings"
 
 	"github.com/bwalheim1205/chatty/internal/llm"
@@ -29,11 +30,56 @@ func (s *State) executeCommand() tea.Cmd {
 }
 
 func (s *State) chat() tea.Cmd {
+	// cancel any in-flight request
+	if s.cancel != nil {
+		s.cancel()
+	}
+
+	ctx, cancel := context.WithCancel(context.Background())
+	s.cancel = cancel
+
+	// append user message
 	s.Messages = append(s.Messages, llm.Message{
 		Role:    "user",
 		Content: s.Command,
 	})
+
+	req := llm.Request{
+		Model:    llm.ModelID(s.Model),
+		Messages: s.Messages,
+	}
+
 	s.Command = ""
 	s.Mode = ModeRead
-	return nil
+
+	stream, err := s.LLM.Stream(ctx, req)
+	if err != nil {
+		return func() tea.Msg {
+			return LLMStreamChunk{Err: err}
+		}
+	}
+
+	s.Stream = stream
+
+	return ReadNextChunk(ctx, stream)
+}
+
+func ReadNextChunk(
+	ctx context.Context,
+	stream <-chan llm.StreamChunk,
+) tea.Cmd {
+	return func() tea.Msg {
+		select {
+		case <-ctx.Done():
+			return LLMStreamChunk{Err: ctx.Err()}
+		case chunk, ok := <-stream:
+			if !ok {
+				return LLMStreamChunk{Done: true}
+			}
+			return LLMStreamChunk{
+				Text: chunk.Text,
+				Done: chunk.Done,
+			}
+		}
+	}
 }

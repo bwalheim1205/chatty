@@ -2,7 +2,10 @@
 package ui
 
 import (
+	"context"
+
 	"github.com/bwalheim1205/chatty/internal/app"
+	"github.com/bwalheim1205/chatty/internal/llm"
 
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
@@ -39,6 +42,36 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		cmd := m.State.HandleKey(msg)
 		return m, cmd
 
+	case app.LLMCompleteMsg:
+		m.State.Messages = append(m.State.Messages, llm.Message{
+			Role:    "assistant",
+			Content: msg.Text,
+		})
+		return m, nil
+
+	case app.LLMStreamChunk:
+		if msg.Err != nil {
+			return m, nil
+		}
+
+		// ensure assistant message exists
+		if len(m.State.Messages) == 0 ||
+			m.State.Messages[len(m.State.Messages)-1].Role != "assistant" {
+			m.State.Messages = append(m.State.Messages, llm.Message{
+				Role: "assistant",
+			})
+		}
+
+		if msg.Text != "" {
+			m.State.Messages[len(m.State.Messages)-1].Content += msg.Text
+		}
+
+		if msg.Done {
+			return m, nil
+		}
+
+		// schedule next chunk
+		return m, app.ReadNextChunk(context.Background(), m.State.Stream)
 	}
 
 	return m, nil

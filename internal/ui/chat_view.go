@@ -2,29 +2,31 @@ package ui
 
 import (
 	"strings"
+
+	"github.com/charmbracelet/lipgloss"
 )
 
 func (m *Model) updateViewportContent() {
 	var b strings.Builder
 
-	if len(m.State.Messages) == 0 {
-		// Fill with empty lines to occupy viewport
-		for i := 0; i < m.Viewport.Height; i++ {
-			b.WriteString("\n")
+	text_style := lipgloss.NewStyle().Width(m.Viewport.Width)
+	user_text_style := lipgloss.NewStyle().Bold(true).Underline(true).Foreground(lipgloss.Color("#c543c9"))
+	assistant_text_style := lipgloss.NewStyle().Bold(true).Underline(true).Foreground(lipgloss.Color("#43a1c9"))
+
+	for _, m := range m.State.Messages {
+		switch m.Role {
+		case "user":
+			b.WriteString(user_text_style.Render("You:") + "\n")
+		case "assistant":
+			b.WriteString(assistant_text_style.Render("Assistant:") + "\n")
 		}
-	} else {
-		start := m.Viewport.YOffset
-		end := start + m.Viewport.Height
-		if end > len(m.State.Messages) {
-			end = len(m.State.Messages)
-		}
-		for i := start; i < end; i++ {
-			line := m.State.Messages[i].Role + ": " + m.State.Messages[i].Content
-			b.WriteString(line + "\n")
-		}
+
+		b.WriteString(text_style.Render(m.Content))
+		b.WriteString("\n\n")
 	}
 
 	m.Viewport.SetContent(b.String())
+	m.Viewport.GotoBottom()
 }
 
 func ChatView(m Model) string {
