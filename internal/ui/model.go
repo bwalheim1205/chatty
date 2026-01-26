@@ -51,6 +51,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case app.LLMStreamChunk:
 		if msg.Err != nil {
+			m.State.Messages = append(m.State.Messages, llm.Message{
+				Role:  "assistant",
+				Error: msg.Err.Error(),
+			})
 			return m, nil
 		}
 

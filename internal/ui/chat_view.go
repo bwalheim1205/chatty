@@ -12,6 +12,7 @@ func (m *Model) updateViewportContent() {
 	text_style := lipgloss.NewStyle().Width(m.Viewport.Width)
 	user_text_style := lipgloss.NewStyle().Bold(true).Underline(true).Foreground(lipgloss.Color("#c543c9"))
 	assistant_text_style := lipgloss.NewStyle().Bold(true).Underline(true).Foreground(lipgloss.Color("#43a1c9"))
+	error_style := lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#f14d4d"))
 
 	for _, m := range m.State.Messages {
 		switch m.Role {
@@ -21,7 +22,13 @@ func (m *Model) updateViewportContent() {
 			b.WriteString(assistant_text_style.Render("Assistant:") + "\n")
 		}
 
-		b.WriteString(text_style.Render(m.Content))
+		if m.Error != "" {
+			b.WriteString(error_style.Render("Error occured calling an llm please try and resend message:") + "\n")
+			b.WriteString(error_style.Render(m.Error))
+		} else {
+			b.WriteString(text_style.Render(m.Content))
+		}
+
 		b.WriteString("\n\n")
 	}
 

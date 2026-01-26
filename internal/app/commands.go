@@ -71,11 +71,21 @@ func ReadNextChunk(
 	return func() tea.Msg {
 		select {
 		case <-ctx.Done():
+			// context was cancelled or timed out
 			return LLMStreamChunk{Err: ctx.Err()}
+
 		case chunk, ok := <-stream:
 			if !ok {
+				// stream closed naturally
 				return LLMStreamChunk{Done: true}
 			}
+
+			// forward any chunk error
+			if chunk.Err != nil {
+				return LLMStreamChunk{Err: chunk.Err}
+			}
+
+			// normal chunk
 			return LLMStreamChunk{
 				Text: chunk.Text,
 				Done: chunk.Done,

@@ -6,6 +6,7 @@ import "context"
 type Message struct {
 	Role    string // "system" | "user" | "assistant"
 	Content string
+	Error   string
 }
 
 type Request struct {
@@ -16,6 +17,7 @@ type Request struct {
 type StreamChunk struct {
 	Text string
 	Done bool
+	Err  error
 }
 
 type Client interface {
