@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"time"
 
 	"github.com/bwalheim1205/chatty/internal/llm"
 	"github.com/bwalheim1205/chatty/internal/llm/ollama"
@@ -16,14 +17,19 @@ const (
 )
 
 type State struct {
-	Mode        Mode
-	Messages    []llm.Message
-	Command     string
-	CommandType string
-	Model       string
-	LLM         llm.Client
-	cancel      context.CancelFunc
-	Stream      <-chan llm.StreamChunk
+	Mode          Mode
+	Messages      []llm.Message
+	CursorYOffset int
+	CursorXOffset int
+	Lines         []string
+	LastKey       string
+	LastKeyTime   time.Time
+	Command       string
+	CommandType   string
+	Model         string
+	LLM           llm.Client
+	cancel        context.CancelFunc
+	Stream        <-chan llm.StreamChunk
 }
 
 func NewState() *State {

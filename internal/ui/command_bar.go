@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"strconv"
 	"strings"
 
 	"github.com/bwalheim1205/chatty/internal/app"
@@ -57,7 +58,16 @@ func CommandBar(m Model) string {
 		}
 	} else {
 		AddModeTitle(m, &b)
-		b.WriteString("press ':' for commands")
+
+		// Add line numbers
+		rightText := "Ln " + strconv.Itoa(m.State.CursorYOffset+1) + ", Col " + strconv.Itoa(m.State.CursorXOffset)
+		statusLine := lipgloss.JoinHorizontal(
+			lipgloss.Top,
+			lipgloss.NewStyle().Width(m.Viewport.Width/2).Align(lipgloss.Left).Render("press ':' for commands"),
+			lipgloss.NewStyle().Width(m.Viewport.Width/2).Align(lipgloss.Right).Render(rightText),
+		)
+		b.WriteString(statusLine)
+
 	}
 
 	return b.String()

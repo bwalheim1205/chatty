@@ -14,6 +14,7 @@ import (
 type Model struct {
 	State    *app.State
 	Viewport viewport.Model
+	lines    []string
 }
 
 func InitialModel() Model {
@@ -23,6 +24,7 @@ func InitialModel() Model {
 	return Model{
 		State:    app.NewState(),
 		Viewport: vp,
+		lines:    []string{},
 	}
 }
 
@@ -39,7 +41,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, nil
 
 	case tea.KeyMsg:
-		cmd := m.State.HandleKey(msg)
+		cmd := m.State.HandleKey(msg, &m.Viewport)
+		m.updateViewportContent()
 		return m, cmd
 
 	case app.LLMCompleteMsg:
@@ -47,6 +50,13 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			Role:    "assistant",
 			Content: msg.Text,
 		})
+
+		m.updateViewportContent()
+		m.Viewport.GotoBottom()
+		m.State.CursorYOffset = max(0, len(m.State.Lines)-1)
+		m.State.CursorXOffset = max(0, len(m.State.Lines[len(m.State.Lines)-1])-1)
+		m.updateViewportContent()
+
 		return m, nil
 
 	case app.LLMStreamChunk:
@@ -73,6 +83,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if msg.Done {
 			return m, nil
 		}
+
+		m.updateViewportContent()
+		m.Viewport.GotoBottom()
+		m.State.CursorYOffset = max(0, len(m.State.Lines)-1)
+		m.State.CursorXOffset = max(0, len(m.State.Lines[len(m.State.Lines)-1])-1)
+		m.updateViewportContent()
 
 		// schedule next chunk
 		return m, app.ReadNextChunk(context.Background(), m.State.Stream)
