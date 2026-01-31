@@ -5,6 +5,8 @@ import (
 	"strings"
 
 	"github.com/bwalheim1205/chatty/internal/llm"
+	"github.com/bwalheim1205/chatty/internal/llm/chatgpt"
+	"github.com/bwalheim1205/chatty/internal/llm/ollama"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
@@ -18,6 +20,18 @@ func (s *State) executeCommand() tea.Cmd {
 	case "m", "model":
 		if len(commandParts) > 1 {
 			s.Model = commandParts[1]
+		}
+	case "p", "provider":
+		if len(commandParts) > 1 {
+			provider := strings.ToLower(commandParts[1])
+			switch provider {
+			case "chatgpt":
+				s.LLM = chatgpt.New("", "")
+				s.Model = string(s.LLM.DefaultModel())
+			case "ollama":
+				s.LLM = ollama.New("", "")
+				s.Model = string(s.LLM.DefaultModel())
+			}
 		}
 	case "c", "c!", "clear":
 		s.Messages = []llm.Message{}
